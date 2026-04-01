@@ -71,9 +71,9 @@ export function setupGuestList(containerElement) {
 
   function handleClick(e) {
     let btn = e.target.closest(".remove-btn");
-    if (btn) {
+    if (btn && containerElement.contains(btn)) {
       let item = btn.closest(".guest-item");
-      if (item && containerElement.contains(item)) {
+      if (item && item.parentNode === containerElement) {
         containerElement.removeChild(item);
       }
     }
@@ -85,8 +85,8 @@ export function setupGuestList(containerElement) {
     addGuest: function (name, side) {
       let div = document.createElement("div");
       div.classList.add("guest-item");
-      div.setAttribute("data-name", name);
-      div.setAttribute("data-side", side);
+      div.dataset.name = name;
+      div.dataset.side = side;
 
       let span = document.createElement("span");
       span.textContent = name;
@@ -107,7 +107,7 @@ export function setupGuestList(containerElement) {
       let items = containerElement.querySelectorAll(".guest-item");
 
       for (let i = 0; i < items.length; i++) {
-        if (items[i].getAttribute("data-name") === name) {
+        if (items[i].dataset.name === name) {
           containerElement.removeChild(items[i]);
           return true;
         }
@@ -122,8 +122,8 @@ export function setupGuestList(containerElement) {
 
       for (let i = 0; i < items.length; i++) {
         result.push({
-          name: items[i].getAttribute("data-name"),
-          side: items[i].getAttribute("data-side"),
+          name: items[i].dataset.name,
+          side: items[i].dataset.side,
         });
       }
 
@@ -137,20 +137,22 @@ export function setupThemeSelector(containerElement, previewElement) {
 
   let themes = ["traditional", "modern", "royal"];
 
+  containerElement.innerHTML = "";
+
   for (let i = 0; i < themes.length; i++) {
     let btn = document.createElement("button");
     btn.classList.add("theme-btn");
     btn.textContent = themes[i];
-    btn.setAttribute("data-theme", themes[i]);
+    btn.dataset.theme = themes[i];
     containerElement.appendChild(btn);
   }
 
   function handleClick(e) {
     let btn = e.target.closest(".theme-btn");
-    if (btn) {
-      let theme = btn.getAttribute("data-theme");
+    if (btn && containerElement.contains(btn)) {
+      let theme = btn.dataset.theme;
       previewElement.className = theme;
-      previewElement.setAttribute("data-theme", theme);
+      previewElement.dataset.theme = theme;
     }
   }
 
@@ -158,7 +160,7 @@ export function setupThemeSelector(containerElement, previewElement) {
 
   return {
     getTheme: function () {
-      return previewElement.getAttribute("data-theme");
+      return previewElement.dataset.theme || null;
     },
   };
 }
@@ -170,7 +172,7 @@ export function setupCardEditor(cardElement) {
     let current = cardElement.querySelector(".editing");
     if (current) {
       current.classList.remove("editing");
-      current.removeAttribute("contentEditable");
+      current.contentEditable = "false";
     }
   }
 
@@ -179,9 +181,9 @@ export function setupCardEditor(cardElement) {
 
     if (editable && cardElement.contains(editable)) {
       clearEditing();
-      editable.setAttribute("contentEditable", "true");
+      editable.contentEditable = "true";
       editable.classList.add("editing");
-    } else {
+    } else if (e.target === cardElement) {
       clearEditing();
     }
   }
